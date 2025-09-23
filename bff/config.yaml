@@ -1,0 +1,7 @@
+server:
+  address: ":8080"
+
+billing_connection:
+  address: "localhost:50051"
+
+log_level: "info"
