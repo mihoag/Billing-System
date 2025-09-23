@@ -1,7 +1,6 @@
 server:
-  address: ":8080"
+  address: "127.0.0.0:8080"
 
 billing_connection:
-  address: "localhost:50051"
+  address: "localhost:8001"
 
-log_level: "info"

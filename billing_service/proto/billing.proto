@@ -7,9 +7,6 @@ option go_package = "billing-system/billing_service/proto";
 service BillingService {
   // CreateOrder creates a new order with items and payment details
   rpc CreateOrder(CreateOrderRequest) returns (CreateOrderResponse) {}
-  
-  // GetOrder retrieves an order by its ID
-  rpc GetOrder(GetOrderRequest) returns (GetOrderResponse) {}
 }
 
 // Item request for order creation
@@ -34,16 +31,6 @@ message CreateOrderRequest {
 
 // Response message for creating an order
 message CreateOrderResponse {
-  Order order = 1;
-}
-
-// Request message for retrieving an order
-message GetOrderRequest {
-  int64 order_id = 1;
-}
-
-// Response message for retrieving an order
-message GetOrderResponse {
   Order order = 1;
 }
 

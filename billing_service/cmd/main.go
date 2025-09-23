@@ -43,7 +43,7 @@ func main() {
 	orderHandler := billing_handler.NewOrderHandler(orderService)
 
 	// server's address
-	address := "127.0.0.1:8081"
+	address := "127.0.0.1:8082"
 	lis, err := net.Listen("tcp", address)
 	if err != nil {
 		log.Fatalf("Failed to listen on %s: %v", address, err)

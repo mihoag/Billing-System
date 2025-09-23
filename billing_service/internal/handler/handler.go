@@ -59,22 +59,6 @@ func (h *OrderHandler) CreateOrder(ctx context.Context, req *pb.CreateOrderReque
 	}, nil
 }
 
-// GetOrder handles the gRPC request to get an order by ID
-func (h *OrderHandler) GetOrder(ctx context.Context, req *pb.GetOrderRequest) (*pb.GetOrderResponse, error) {
-	// Call the service layer to get the order
-	order, err := h.orderService.GetOrder(ctx, req.OrderId)
-	if err != nil {
-		return nil, mapErrorToGRPCStatus(err).Err()
-	}
-
-	// Convert the domain order to proto order
-	protoOrder := convertOrderToProto(order)
-
-	return &pb.GetOrderResponse{
-		Order: protoOrder,
-	}, nil
-}
-
 // convertOrderToProto converts a domain Order to a proto Order
 func convertOrderToProto(order *model.Order) *pb.Order {
 	protoOrder := &pb.Order{

@@ -12,7 +12,6 @@ type ItemRepository interface {
 // OrderRepository defines the interface for order operations
 type OrderRepository interface {
 	Create(ctx context.Context, order *model.Order) error
-	GetByID(ctx context.Context, id int64) (*model.Order, error)
 }
 
 // OrderItemRepository defines the interface for order item operations
@@ -28,13 +27,9 @@ type PaymentRepository interface {
 // InvoiceRepository defines the interface for invoice operations
 type InvoiceRepository interface {
 	Create(ctx context.Context, invoice *model.Invoice) error
-	GetByID(ctx context.Context, id int64) (*model.Invoice, error)
-	GetByOrderID(ctx context.Context, orderID int64) ([]*model.Invoice, error)
 }
 
 // InvoiceItemRepository defines the interface for invoice item operations
 type InvoiceItemRepository interface {
 	Create(ctx context.Context, invoiceItem *model.InvoiceItem) error
-	GetByID(ctx context.Context, id int64) (*model.InvoiceItem, error)
-	GetByInvoiceID(ctx context.Context, invoiceID int64) ([]*model.InvoiceItem, error)
 }

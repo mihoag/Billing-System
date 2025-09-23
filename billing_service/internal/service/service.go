@@ -20,14 +20,13 @@ var (
 // OrderService defines the interface for order-related business logic
 type OrderService interface {
 	CreateOrder(ctx context.Context, customerID string, items []ItemRequest, payments []PaymentRequest) (*model.Order, error)
-	GetOrder(ctx context.Context, id int64) (*model.Order, error)
 }
 
 // InvoiceService defines the interface for invoice-related business logic
-type InvoiceService interface {
-	CreateInvoice(ctx context.Context, orderID int64, shipmentID int64, items []ItemRequest) (*model.Invoice, error)
-	GetInvoice(ctx context.Context, id int64) (*model.Invoice, error)
-}
+// type InvoiceService interface {
+// 	CreateInvoice(ctx context.Context, orderID int64, shipmentID int64, items []ItemRequest) (*model.Invoice, error)
+// 	GetInvoice(ctx context.Context, id int64) (*model.Invoice, error)
+// }
 
 // ItemRequest represents a request to include an item in an order or invoice
 type ItemRequest struct {

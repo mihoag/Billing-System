@@ -8,7 +8,6 @@ package proto
 
 import (
 	context "context"
-
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -21,7 +20,6 @@ const _ = grpc.SupportPackageIsVersion9
 
 const (
 	BillingService_CreateOrder_FullMethodName = "/billing.BillingService/CreateOrder"
-	BillingService_GetOrder_FullMethodName    = "/billing.BillingService/GetOrder"
 )
 
 // BillingServiceClient is the client API for BillingService service.
@@ -30,8 +28,6 @@ const (
 type BillingServiceClient interface {
 	// CreateOrder creates a new order with items and payment details
 	CreateOrder(ctx context.Context, in *CreateOrderRequest, opts ...grpc.CallOption) (*CreateOrderResponse, error)
-	// GetOrder retrieves an order by its ID
-	GetOrder(ctx context.Context, in *GetOrderRequest, opts ...grpc.CallOption) (*GetOrderResponse, error)
 }
 
 type billingServiceClient struct {
@@ -52,24 +48,12 @@ func (c *billingServiceClient) CreateOrder(ctx context.Context, in *CreateOrderR
 	return out, nil
 }
 
-func (c *billingServiceClient) GetOrder(ctx context.Context, in *GetOrderRequest, opts ...grpc.CallOption) (*GetOrderResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(GetOrderResponse)
-	err := c.cc.Invoke(ctx, BillingService_GetOrder_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 // BillingServiceServer is the server API for BillingService service.
 // All implementations must embed UnimplementedBillingServiceServer
 // for forward compatibility.
 type BillingServiceServer interface {
 	// CreateOrder creates a new order with items and payment details
 	CreateOrder(context.Context, *CreateOrderRequest) (*CreateOrderResponse, error)
-	// GetOrder retrieves an order by its ID
-	GetOrder(context.Context, *GetOrderRequest) (*GetOrderResponse, error)
 	mustEmbedUnimplementedBillingServiceServer()
 }
 
@@ -82,9 +66,6 @@ type UnimplementedBillingServiceServer struct{}
 
 func (UnimplementedBillingServiceServer) CreateOrder(context.Context, *CreateOrderRequest) (*CreateOrderResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateOrder not implemented")
-}
-func (UnimplementedBillingServiceServer) GetOrder(context.Context, *GetOrderRequest) (*GetOrderResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetOrder not implemented")
 }
 func (UnimplementedBillingServiceServer) mustEmbedUnimplementedBillingServiceServer() {}
 func (UnimplementedBillingServiceServer) testEmbeddedByValue()                        {}
@@ -125,24 +106,6 @@ func _BillingService_CreateOrder_Handler(srv interface{}, ctx context.Context, d
 	return interceptor(ctx, in, info, handler)
 }
 
-func _BillingService_GetOrder_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetOrderRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(BillingServiceServer).GetOrder(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: BillingService_GetOrder_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BillingServiceServer).GetOrder(ctx, req.(*GetOrderRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 // BillingService_ServiceDesc is the grpc.ServiceDesc for BillingService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -153,10 +116,6 @@ var BillingService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CreateOrder",
 			Handler:    _BillingService_CreateOrder_Handler,
-		},
-		{
-			MethodName: "GetOrder",
-			Handler:    _BillingService_GetOrder_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -17,7 +17,7 @@ type OrderServiceImpl struct {
 func NewOrderService(
 	orderRepo repository.OrderRepository,
 	itemRepo repository.ItemRepository,
-) *OrderServiceImpl {
+) OrderService {
 	return &OrderServiceImpl{
 		orderRepo: orderRepo,
 		itemRepo:  itemRepo,
@@ -90,14 +90,5 @@ func (s *OrderServiceImpl) CreateOrder(
 	}
 
 	// If we got this far, the order was created successfully
-	return order, nil
-}
-
-// GetOrder retrieves an order by ID with all associations
-func (s *OrderServiceImpl) GetOrder(ctx context.Context, id int64) (*model.Order, error) {
-	order, err := s.orderRepo.GetByID(ctx, id)
-	if err != nil {
-		return nil, fmt.Errorf("%w: %v", ErrOrderNotFound, err)
-	}
 	return order, nil
 }
