@@ -1,124 +1,74 @@
-package billing_handler
+package handler
 
 import (
-	"billing-system/billing_service/internal/model"
-	"billing-system/billing_service/internal/service"
-	pb "billing-system/billing_service/proto"
+	"billing-system/shipment_service/internal/model"
+	"billing-system/shipment_service/internal/service"
+	pb "billing-system/shipment_service/proto"
 	"context"
 	"time"
-
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 )
 
-// OrderHandler handles gRPC requestsW related to orders
-type OrderHandler struct {
-	pb.UnimplementedBillingServiceServer
-	orderService service.OrderService
+// ShipmentHandler handles gRPC requests related to shipments
+type ShipmentHandler struct {
+	pb.UnimplementedShipmentServiceServer
+	shipmentService service.ShipmentService
 }
 
-// NewOrderHandler creates a new OrderHandler
-func NewOrderHandler(orderService service.OrderService) *OrderHandler {
-	return &OrderHandler{
-		orderService: orderService,
+// NewShipmentHandler creates a new ShipmentHandler
+func NewShipmentHandler(shipmentService service.ShipmentService) *ShipmentHandler {
+	return &ShipmentHandler{
+		shipmentService: shipmentService,
 	}
 }
 
-// CreateOrder handles the gRPC request to create a new order
-func (h *OrderHandler) CreateOrder(ctx context.Context, req *pb.CreateOrderRequest) (*pb.CreateOrderResponse, error) {
-	// Convert proto ItemRequests to service ItemRequests
-	items := make([]service.ItemRequest, len(req.Items))
+// CreateShipment handles the gRPC request to create a new shipment
+func (h *ShipmentHandler) CreateShipment(ctx context.Context, req *pb.CreateShipmentRequest) (*pb.CreateShipmentResponse, error) {
+	// Convert proto ShipmentItemRequests to service ShipmentItemRequests
+	items := make([]service.ShipmentItemRequest, len(req.Items))
 	for i, item := range req.Items {
-		items[i] = service.ItemRequest{
-			ItemID:   item.ItemId,
+		items[i] = service.ShipmentItemRequest{
+			Sku:      item.Sku,
 			Quantity: int(item.Quantity),
-			Price:    item.Price,
 		}
 	}
 
-	// Convert proto PaymentRequests to service PaymentRequests
-	payments := make([]service.PaymentRequest, len(req.Payments))
-	for i, payment := range req.Payments {
-		payments[i] = service.PaymentRequest{
-			Method: model.PaymentMethod(payment.Method),
-			Amount: payment.Amount,
-		}
-	}
-
-	// Call the service layer to create the order
-	order, err := h.orderService.CreateOrder(ctx, req.CustomerId, items, payments)
+	// Call the service layer to create the shipment
+	shipment, err := h.shipmentService.CreateShipment(ctx, req.OrderId, items)
 	if err != nil {
-		return nil, mapErrorToGRPCStatus(err).Err()
+		return &pb.CreateShipmentResponse{
+			Code:    0, // Error code
+			Message: err.Error(),
+		}, nil
 	}
 
-	// Convert the domain order to proto order
-	protoOrder := convertOrderToProto(order)
+	// Convert the domain shipment to proto shipment data
+	shipmentData := convertShipmentToProtoData(shipment)
 
-	return &pb.CreateOrderResponse{
-		Order: protoOrder,
+	return &pb.CreateShipmentResponse{
+		Code:    1, // Success code
+		Message: "Create shipment successfully",
+		Data:    shipmentData,
 	}, nil
 }
 
-// convertOrderToProto converts a domain Order to a proto Order
-func convertOrderToProto(order *model.Order) *pb.Order {
-	protoOrder := &pb.Order{
-		Id:          order.ID,
-		CustomerId:  order.CustomerID,
-		TotalAmount: order.TotalAmount,
-		Status:      mapOrderStatus(order.Status),
-		CreatedAt:   order.CreatedAt.Format(time.RFC3339),
-		UpdatedAt:   order.UpdatedAt.Format(time.RFC3339),
+// convertShipmentToProtoData converts a domain Shipment to proto ShipmentData
+func convertShipmentToProtoData(shipment *model.Shipment) *pb.ShipmentData {
+	shipmentData := &pb.ShipmentData{
+		ShipmentId: shipment.ID,
+		OrderId:    shipment.ID,
+		Status:     string(shipment.Status),
+		CreatedAt:  shipment.CreatedAt.Format(time.RFC3339),
 	}
 
-	// Convert order items
-	protoItems := make([]*pb.OrderItem, len(order.Items))
-	for i, item := range order.Items {
-		protoItems[i] = &pb.OrderItem{
-			Id:       item.ID,
-			OrderId:  item.OrderID,
-			ItemId:   item.ItemId,
+	// Convert shipment items
+	protoItems := make([]*pb.ShipmentItem, len(shipment.Items))
+	for i, item := range shipment.Items {
+		protoItems[i] = &pb.ShipmentItem{
+			Sku:      item.Sku,
 			Quantity: int32(item.Quantity),
 		}
 	}
-	protoOrder.Items = protoItems
+	shipmentData.Items = protoItems
 
-	// Convert payments
-	protoPayments := make([]*pb.Payment, len(order.Payments))
-	for i, payment := range order.Payments {
-		protoPayments[i] = &pb.Payment{
-			Id:      payment.ID,
-			OrderId: payment.OrderID,
-			Method:  string(payment.Method),
-			Amount:  payment.Amount,
-		}
-	}
-	protoOrder.Payments = protoPayments
-
-	return protoOrder
-}
-
-// mapOrderStatus maps a domain OrderStatus to a proto OrderStatus
-func mapOrderStatus(status model.OrderStatus) pb.OrderStatus {
-	switch status {
-	case model.Pending:
-		return pb.OrderStatus_PENDING
-	case model.Success:
-		return pb.OrderStatus_SUCCESS
-	case model.Failed:
-		return pb.OrderStatus_FAILED
-	default:
-		return pb.OrderStatus_PENDING
-	}
-}
-
-// mapErrorToGRPCStatus maps service errors to gRPC status errors
-func mapErrorToGRPCStatus(err error) *status.Status {
-	switch err {
-	case service.ErrItemNotFound, service.ErrOrderNotFound:
-		return status.New(codes.NotFound, err.Error())
-	case service.ErrInvalidQuantity, service.ErrInvalidAmount, service.ErrInsufficientPayment:
-		return status.New(codes.InvalidArgument, err.Error())
-	default:
-		return status.New(codes.Internal, "internal server error")
-	}
+	return shipmentData
 }

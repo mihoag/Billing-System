@@ -1,0 +1,44 @@
+syntax = "proto3";
+
+package shipment;
+
+option go_package = "billing-system/shipment_service/proto";
+
+service ShipmentService {
+  // CreateShipment creates a new shipment with items
+  rpc CreateShipment(CreateShipmentRequest) returns (CreateShipmentResponse) {}
+}
+
+// Item request for shipment creation
+message ShipmentItemRequest {
+  string sku = 1;
+  int32 quantity = 2;
+}
+
+// Request message for creating a shipment
+message CreateShipmentRequest {
+  int64 order_id = 1;
+  repeated ShipmentItemRequest items = 2;
+}
+
+// Response message for creating a shipment
+message CreateShipmentResponse {
+  int32 code = 1;
+  string message = 2;
+  ShipmentData data = 3;
+}
+
+// Shipment data in response
+message ShipmentData {
+  int64 shipment_id = 1;
+  int64 order_id = 2;
+  string status = 3;
+  repeated ShipmentItem items = 4;
+  string created_at = 5;
+}
+
+// Shipment item in response
+message ShipmentItem {
+  string sku = 1;
+  int32 quantity = 2;
+}

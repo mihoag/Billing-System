@@ -1,94 +1,58 @@
 package service
 
 import (
-	"billing-system/billing_service/internal/model"
-	"billing-system/billing_service/internal/repository"
+	"billing-system/shipment_service/internal/model"
+	"billing-system/shipment_service/internal/repository"
 	"context"
 	"fmt"
 )
 
-// OrderServiceImpl implements OrderService
-type OrderServiceImpl struct {
-	orderRepo repository.OrderRepository
-	itemRepo  repository.ItemRepository
+type ShipmentServiceImpl struct {
+	shipmentRepo repository.ShipmentRepository
 }
 
-// NewOrderService creates a new OrderServiceImpl
-func NewOrderService(
-	orderRepo repository.OrderRepository,
-	itemRepo repository.ItemRepository,
-) OrderService {
-	return &OrderServiceImpl{
-		orderRepo: orderRepo,
-		itemRepo:  itemRepo,
+func NewShipmentService(shipmentRepo repository.ShipmentRepository) ShipmentService {
+	return &ShipmentServiceImpl{
+		shipmentRepo: shipmentRepo,
 	}
 }
 
-// CreateOrder creates a new order with items and payments
-func (s *OrderServiceImpl) CreateOrder(
-	ctx context.Context,
-	customerID string,
-	itemRequests []ItemRequest,
-	paymentRequests []PaymentRequest,
-) (*model.Order, error) {
-	// Calculate total amount from items
-	var totalAmount float64
-	orderItems := make([]model.OrderItem, 0, len(itemRequests))
+func (s *ShipmentServiceImpl) CreateShipment(ctx context.Context, orderID int64, items []ShipmentItemRequest) (*model.Shipment, error) {
 
-	// Process items and calculate totals
-	for _, req := range itemRequests {
-		item, err := s.itemRepo.GetByID(ctx, req.ItemID)
-		if err != nil {
-			return nil, fmt.Errorf("%w: %v", ErrItemNotFound, err)
+	if len(items) == 0 {
+		return nil, fmt.Errorf("at least one item is required")
+	}
+
+	// Validate items
+	var shipmentItems []model.ShipmentItem
+	for _, itemReq := range items {
+		if itemReq.Sku == "" {
+			return nil, fmt.Errorf("SKU is required for all items")
+		}
+		if itemReq.Quantity <= 0 {
+			return nil, fmt.Errorf("quantity must be greater than 0 for SKU %s", itemReq.Sku)
 		}
 
-		// Use provided price if available, otherwise use item's price
-		unitPrice := item.Price
-		if req.Price > 0 {
-			unitPrice = req.Price
-		}
-
-		total := float64(req.Quantity) * unitPrice
-		totalAmount += total
-
-		orderItems = append(orderItems, model.OrderItem{
-			ItemId:   item.ID,
-			Quantity: req.Quantity,
+		shipmentItems = append(shipmentItems, model.ShipmentItem{
+			Sku:      itemReq.Sku,
+			Quantity: itemReq.Quantity,
 		})
 	}
 
-	// Calculate total payment amount
-	var totalPayment float64
-	payments := make([]model.Payment, 0, len(paymentRequests))
-
-	for _, req := range paymentRequests {
-		totalPayment += req.Amount
-		payments = append(payments, model.Payment{
-			Method: req.Method,
-			Amount: req.Amount,
-		})
+	// Create shipment
+	shipment := &model.Shipment{
+		OrderID: orderID,
+		Status:  model.Confirmed,
+		Items:   shipmentItems,
 	}
 
-	// Validate that total payment equals total amount
-	if totalPayment != totalAmount {
-		return nil, fmt.Errorf("%w: payment total %f does not match order total %f",
-			ErrInvalidAmount, totalPayment, totalAmount)
+	if err := s.shipmentRepo.Create(ctx, shipment); err != nil {
+		return nil, fmt.Errorf("failed to create shipment: %w", err)
 	}
 
-	// Create order
-	order := &model.Order{
-		CustomerID:  customerID,
-		TotalAmount: totalAmount,
-		Status:      model.Pending,
-		Items:       orderItems,
-		Payments:    payments,
+	if err := s.shipmentRepo.Update(ctx, shipment); err != nil {
+		return nil, fmt.Errorf("failed to update shipment status: %w", err)
 	}
 
-	// Save the order to the database
-	if err := s.orderRepo.Create(ctx, order); err != nil {
-		return nil, fmt.Errorf("failed to create order: %w", err)
-	}
-
-	// If we got this far, the order was created successfully
-	return order, nil
+	return shipment, nil
 }

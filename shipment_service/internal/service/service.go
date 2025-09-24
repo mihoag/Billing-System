@@ -6,5 +6,10 @@ import (
 )
 
 type ShipmentService interface {
-	CreateShipment(ctx context.Context, customerID string, items []ShipmentItemRequest) (*model.Shipment, error)
+	CreateShipment(ctx context.Context, orderID int64, items []ShipmentItemRequest) (*model.Shipment, error)
+}
+
+type ShipmentItemRequest struct {
+	Sku      string
+	Quantity int
 }
