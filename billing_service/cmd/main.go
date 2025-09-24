@@ -35,12 +35,14 @@ func main() {
 	// Initialize repositories
 	itemRepo := repository.NewItemRepository(gormDB)
 	orderRepo := repository.NewOrderRepository(gormDB)
+	invoiceRepo := repository.NewInvoiceRepository(gormDB)
 
 	// Initialize services
 	orderService := service.NewOrderService(orderRepo, itemRepo)
+	invoiceService := service.NewInvoiceService(invoiceRepo)
 
 	// Initialize HTTP handlers
-	orderHandler := billing_handler.NewOrderHandler(orderService)
+	orderHandler := billing_handler.NewOrderHandler(orderService, invoiceService)
 
 	// server's address
 	address := "127.0.0.1:8082"

@@ -7,11 +7,13 @@ option go_package = "billing-system/billing_service/proto";
 service BillingService {
   // CreateOrder creates a new order with items and payment details
   rpc CreateOrder(CreateOrderRequest) returns (CreateOrderResponse) {}
+  // CreateInvoice creates an invoice for a shipment with specific items
+  rpc CreateInvoice(CreateInvoiceRequest) returns (CreateInvoiceResponse) {}
 }
 
 // Item request for order creation
 message ItemRequest {
-  int64 item_id = 1;
+  string sku = 1;
   int32 quantity = 2;
   double price = 3; // Optional override price
 }
@@ -32,6 +34,45 @@ message CreateOrderRequest {
 // Response message for creating an order
 message CreateOrderResponse {
   Order order = 1;
+}
+
+// Invoice item for invoice creation
+message InvoiceItemRequest {
+  string sku = 1;
+  int32 quantity = 2;
+}
+
+// Request message for creating an invoice
+message CreateInvoiceRequest {
+  int64 shipment_id = 1;
+  int64 order_id = 2;
+  repeated InvoiceItemRequest items = 3;
+}
+
+// Response message for creating an invoice
+message CreateInvoiceResponse {
+  string code = 1;
+  string message = 2;
+  Invoice invoice = 3; // Optional invoice data on success
+}
+
+// Invoice message representing an invoice
+message Invoice {
+  int64 id = 1;
+  int64 shipment_id = 2;
+  int64 order_id = 3;
+  double total_amount = 4;
+  repeated InvoiceItem items = 5;
+  string created_at = 6;
+  string updated_at = 7;
+}
+
+// Invoice item detail
+message InvoiceItem {
+  int64 id = 1;
+  int64 invoice_id = 2;
+  int64 item_id = 3;
+  int32 quantity = 4;
 }
 
 // Order message representing an order

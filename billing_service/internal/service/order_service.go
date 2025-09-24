@@ -37,18 +37,12 @@ func (s *OrderServiceImpl) CreateOrder(
 
 	// Process items and calculate totals
 	for _, req := range itemRequests {
-		item, err := s.itemRepo.GetByID(ctx, req.ItemID)
+		item, err := s.itemRepo.GetBySku(ctx, req.Sku)
 		if err != nil {
 			return nil, fmt.Errorf("%w: %v", ErrItemNotFound, err)
 		}
 
-		// Use provided price if available, otherwise use item's price
-		unitPrice := item.Price
-		if req.Price > 0 {
-			unitPrice = req.Price
-		}
-
-		total := float64(req.Quantity) * unitPrice
+		total := float64(req.Quantity) * item.Price
 		totalAmount += total
 
 		orderItems = append(orderItems, model.OrderItem{

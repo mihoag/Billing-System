@@ -3,7 +3,7 @@ package db
 import (
 	"fmt"
 
-	"billing-system/billing_service/pkg/config"
+	"billing-system/shipment_service/pkg/config"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -15,7 +15,7 @@ func NewDatabase(config *config.Config) (*gorm.DB, error) {
 	dsn := fmt.Sprintf(
 		"host=%s port=%s user=%s password=%s dbname=%s ",
 		// dbConfig.Host, dbConfig.Port, dbConfig.Username, dbConfig.Password, dbConfig.Database,
-		"localhost", "5432", "postgres", "leminhhoang", "billing_db",
+		"localhost", "5432", "postgres", "leminhhoang", "shipment_db",
 	)
 
 	db, err := gorm.Open(postgres.Open(dsn))

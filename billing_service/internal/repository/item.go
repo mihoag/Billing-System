@@ -3,7 +3,6 @@ package repository
 import (
 	"billing-system/billing_service/internal/model"
 	"context"
-	"errors"
 
 	"gorm.io/gorm"
 )
@@ -21,19 +20,11 @@ func NewItemRepository(db *gorm.DB) ItemRepository {
 }
 
 // GetByID retrieves an item by its ID
-func (r *ItemRepositoryImpl) GetByID(ctx context.Context, id int64) (*model.Item, error) {
-	if id <= 0 {
-		return nil, errors.New("invalid item ID")
-	}
-
+func (r *ItemRepositoryImpl) GetBySku(ctx context.Context, sku string) (*model.Item, error) {
 	var item model.Item
-	result := r.db.WithContext(ctx).First(&item, id)
-	if result.Error != nil {
-		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-			return nil, errors.New("item not found")
-		}
-		return nil, result.Error
+	err := r.db.WithContext(ctx).Where("sku = ?", sku).First(&item).Error
+	if err != nil {
+		return nil, err
 	}
-
 	return &item, nil
 }

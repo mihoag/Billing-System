@@ -1,6 +1,7 @@
 package billing
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -28,6 +29,7 @@ func (h *Handler) CreateOrder(ctx *gin.Context) {
 	// Get billing service client
 	client, _, err := h.BillingConnection.NewClient()
 	if err != nil {
+		log.Println("Error connecting to billing service:", err)
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to connect to billing service"})
 		return
 	}
@@ -43,7 +45,7 @@ func (h *Handler) CreateOrder(ctx *gin.Context) {
 	// Convert items
 	for i, item := range request.Items {
 		pbRequest.Items[i] = &billingPb.ItemRequest{
-			ItemId:   item.ItemID,
+			Sku:      item.Sku,
 			Quantity: int32(item.Quantity),
 			Price:    item.Price,
 		}

@@ -5,6 +5,7 @@ import (
 	"billing-system/billing_service/internal/service"
 	pb "billing-system/billing_service/proto"
 	"context"
+	"log"
 	"time"
 
 	"google.golang.org/grpc/codes"
@@ -14,13 +15,15 @@ import (
 // OrderHandler handles gRPC requestsW related to orders
 type OrderHandler struct {
 	pb.UnimplementedBillingServiceServer
-	orderService service.OrderService
+	orderService   service.OrderService
+	invoiceService service.InvoiceService
 }
 
 // NewOrderHandler creates a new OrderHandler
-func NewOrderHandler(orderService service.OrderService) *OrderHandler {
+func NewOrderHandler(orderService service.OrderService, invoiceService service.InvoiceService) *OrderHandler {
 	return &OrderHandler{
-		orderService: orderService,
+		orderService:   orderService,
+		invoiceService: invoiceService,
 	}
 }
 
@@ -30,9 +33,8 @@ func (h *OrderHandler) CreateOrder(ctx context.Context, req *pb.CreateOrderReque
 	items := make([]service.ItemRequest, len(req.Items))
 	for i, item := range req.Items {
 		items[i] = service.ItemRequest{
-			ItemID:   item.ItemId,
+			Sku:      item.Sku,
 			Quantity: int(item.Quantity),
-			Price:    item.Price,
 		}
 	}
 
@@ -48,6 +50,8 @@ func (h *OrderHandler) CreateOrder(ctx context.Context, req *pb.CreateOrderReque
 	// Call the service layer to create the order
 	order, err := h.orderService.CreateOrder(ctx, req.CustomerId, items, payments)
 	if err != nil {
+		log.Println("Order created with ID:", err)
+
 		return nil, mapErrorToGRPCStatus(err).Err()
 	}
 
@@ -121,4 +125,59 @@ func mapErrorToGRPCStatus(err error) *status.Status {
 	default:
 		return status.New(codes.Internal, "internal server error")
 	}
+}
+
+func (h *OrderHandler) CreateInvoice(ctx context.Context, req *pb.CreateInvoiceRequest) (*pb.CreateInvoiceResponse, error) {
+	// Convert proto InvoiceItemRequests to service InvoiceItemRequests
+	items := make([]service.InvoiceItemRequest, len(req.Items))
+	for i, item := range req.Items {
+		items[i] = service.InvoiceItemRequest{
+			Sku:      item.Sku,
+			Quantity: int(item.Quantity),
+		}
+	}
+
+	// Call the service layer to create the invoice
+	invoice, err := h.invoiceService.CreateInvoice(ctx, req)
+	if err != nil {
+		return &pb.CreateInvoiceResponse{
+			Code:    "ERROR",
+			Message: err.Error(),
+		}, nil
+	}
+
+	// Convert the domain invoice to proto invoice
+	protoInvoice := convertInvoiceToProto(invoice)
+
+	return &pb.CreateInvoiceResponse{
+		Code:    "SUCCESS",
+		Message: "Invoice created successfully",
+		Invoice: protoInvoice,
+	}, nil
+}
+
+// convertInvoiceToProto converts a domain Invoice to a proto Invoice
+func convertInvoiceToProto(invoice *model.Invoice) *pb.Invoice {
+	protoInvoice := &pb.Invoice{
+		Id:          invoice.ID,
+		ShipmentId:  invoice.ShipmentID,
+		OrderId:     invoice.OrderID,
+		TotalAmount: invoice.TotalAmount,
+		CreatedAt:   invoice.CreatedAt.Format(time.RFC3339),
+		UpdatedAt:   invoice.UpdatedAt.Format(time.RFC3339),
+	}
+
+	// Convert invoice items
+	protoItems := make([]*pb.InvoiceItem, len(invoice.Items))
+	for i, item := range invoice.Items {
+		protoItems[i] = &pb.InvoiceItem{
+			Id:        item.ID,
+			InvoiceId: invoice.ID,
+			ItemId:    item.ItemId,
+			Quantity:  int32(item.Quantity),
+		}
+	}
+	protoInvoice.Items = protoItems
+
+	return protoInvoice
 }

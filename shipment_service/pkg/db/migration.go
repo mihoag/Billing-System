@@ -1,7 +1,7 @@
 package db
 
 import (
-	"billing-system/billing_service/internal/model"
+	"billing-system/shipment_service/internal/model"
 	"log"
 
 	"gorm.io/gorm"
@@ -12,12 +12,8 @@ func MigrateDB(db *gorm.DB) error {
 	log.Println("Running database migrations...")
 
 	err := db.AutoMigrate(
-		&model.Item{},
-		&model.Order{},
-		&model.OrderItem{},
-		&model.Payment{},
-		&model.Invoice{},
-		&model.InvoiceItem{},
+		&model.Shipment{},
+		&model.ShipmentItem{},
 	)
 	if err != nil {
 		return err
