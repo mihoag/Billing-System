@@ -69,21 +69,15 @@ func (s *ShipmentServiceImpl) CreateShipment(ctx context.Context, orderID int64,
 		Items:      invoiceItems,
 	}
 
-	_, err := s.billingClient.CreateInvoice(ctx, invoiceReq)
-	if err != nil {
-		log.Printf("Failed to create invoice: %v", err)
-
+	createInvoiceResponse, _ := s.billingClient.CreateInvoice(ctx, invoiceReq)
+	if createInvoiceResponse.Code == "ERROR" {
 		// Update shipment status to Failed
 		shipment.Status = model.Failed
 		if updateErr := s.shipmentRepo.Update(ctx, shipment); updateErr != nil {
 			log.Printf("Failed to update shipment status: %v", updateErr)
 		}
 
-		return nil, fmt.Errorf("failed to create invoice: %w", err)
-	}
-
-	if err := s.shipmentRepo.Update(ctx, shipment); err != nil {
-		return nil, fmt.Errorf("failed to update shipment status: %w", err)
+		return nil, fmt.Errorf("failed to create invoice: %s", createInvoiceResponse.Message)
 	}
 
 	return shipment, nil

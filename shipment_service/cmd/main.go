@@ -19,10 +19,10 @@ import (
 
 func main() {
 	// load configuration from config.yaml
-	// err := config.LoadConfig()
-	// if err != nil {
-	// 	log.Fatalf("Failed to get config: %v", err)
-	// }
+	err := config.LoadConfig()
+	if err != nil {
+		log.Fatalf("Failed to get config: %v", err)
+	}
 
 	gormDB, err := db.NewDatabase(&config.Service)
 	if err != nil {

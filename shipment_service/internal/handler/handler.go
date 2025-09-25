@@ -56,7 +56,7 @@ func (h *ShipmentHandler) CreateShipment(ctx context.Context, req *pb.CreateShip
 func convertShipmentToProtoData(shipment *model.Shipment) *pb.ShipmentData {
 	shipmentData := &pb.ShipmentData{
 		ShipmentId: shipment.ID,
-		OrderId:    shipment.ID,
+		OrderId:    shipment.OrderID,
 		Status:     string(shipment.Status),
 		CreatedAt:  shipment.CreatedAt.Format(time.RFC3339),
 	}

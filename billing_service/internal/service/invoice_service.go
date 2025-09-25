@@ -24,13 +24,9 @@ func NewInvoiceService(invoiceRepo repository.InvoiceRepository, orderRepo repos
 
 func (s *InvoiceServiceImpl) CreateInvoice(ctx context.Context, shipmentId int64, orderId int64, itemRequest []dto.InvoiceItemRequest) (*model.Invoice, error) {
 	//Validate order exists
-	order, err := s.orderRepo.GetByID(ctx, orderId)
+	_, err := s.orderRepo.GetByID(ctx, orderId)
 	if err != nil {
 		return nil, fmt.Errorf("order not found: %w", err)
-	}
-
-	if order.Status != model.OrderSuccess {
-		return nil, fmt.Errorf("cannot create invoice for order with status: %s", order.Status)
 	}
 
 	// Validate and process items

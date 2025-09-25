@@ -3,6 +3,7 @@ package billing
 import (
 	billingPb "billing-system/billing_service/proto"
 	"context"
+	"log"
 )
 
 // BillingClient provides methods to interact with the billing service
@@ -22,6 +23,7 @@ func (c *BillingClient) CreateInvoice(ctx context.Context, req CreateInvoiceRequ
 	// Get billing service client
 	clientInterface, _, err := c.Connection.NewClient()
 	if err != nil {
+		log.Println("Error connecting to billing service:", err)
 		return nil, err
 	}
 
@@ -45,6 +47,7 @@ func (c *BillingClient) CreateInvoice(ctx context.Context, req CreateInvoiceRequ
 	// Call billing service
 	pbResponse, err := billingClient.CreateInvoice(ctx, pbRequest)
 	if err != nil {
+		log.Println("Error calling CreateInvoice:", err)
 		return nil, err
 	}
 
