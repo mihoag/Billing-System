@@ -87,3 +87,15 @@ func (s *OrderServiceImpl) CreateOrder(
 	// Return the created order
 	return order, nil
 }
+
+// GetOrderByID retrieves an order by its ID
+func (s *OrderServiceImpl) GetOrderByID(ctx context.Context, id int64) (*model.Order, error) {
+	// Retrieve the order from the repository
+	order, err := s.orderRepo.GetByID(ctx, id)
+	if err != nil {
+		// Handle the case where the order is not found
+		return nil, fmt.Errorf("failed to get order with ID %d: %w", id, err)
+	}
+
+	return order, nil
+}

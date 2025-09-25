@@ -3,7 +3,6 @@ package billing
 import (
 	billingPb "billing-system/billing_service/proto"
 	"context"
-	"fmt"
 )
 
 // BillingClient provides methods to interact with the billing service
@@ -23,7 +22,7 @@ func (c *BillingClient) CreateInvoice(ctx context.Context, req CreateInvoiceRequ
 	// Get billing service client
 	clientInterface, _, err := c.Connection.NewClient()
 	if err != nil {
-		return nil, fmt.Errorf("failed to connect to billing service: %w", err)
+		return nil, err
 	}
 
 	billingClient := clientInterface.(billingPb.BillingServiceClient)
@@ -46,7 +45,7 @@ func (c *BillingClient) CreateInvoice(ctx context.Context, req CreateInvoiceRequ
 	// Call billing service
 	pbResponse, err := billingClient.CreateInvoice(ctx, pbRequest)
 	if err != nil {
-		return nil, fmt.Errorf("error calling billing service: %w", err)
+		return nil, err
 	}
 
 	// Convert response

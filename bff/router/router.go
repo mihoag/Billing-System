@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 
+	"billing-system/bff/config"
 	billing "billing-system/bff/internal/billing"
 	shipment "billing-system/bff/internal/shipment"
 )
@@ -27,7 +28,7 @@ func Start() {
 	}
 
 	// Start HTTP server
-	serverAddress := "127.0.0.1:8081" //config.Service.Server.Address
+	serverAddress := config.Service.Server.Address
 
 	if err := router.Run(serverAddress); err != nil {
 		log.Fatal("Failed to start server", zap.Error(err))

@@ -1,13 +1,14 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net"
 
+	"billing-system/shipment_service/config"
 	shipment_handler "billing-system/shipment_service/internal/handler"
 	"billing-system/shipment_service/internal/repository"
 	"billing-system/shipment_service/internal/service"
-	"billing-system/shipment_service/pkg/config"
 	"billing-system/shipment_service/pkg/db"
 
 	shipment_pb "billing-system/shipment_service/proto"
@@ -43,7 +44,7 @@ func main() {
 	shipmentHandler := shipment_handler.NewShipmentHandler(shipmentService)
 
 	// server's address
-	address := "127.0.0.1:8083"
+	address := fmt.Sprintf("%s:%s", config.Service.GRPCServer.Host, config.Service.GRPCServer.Port)
 	lis, err := net.Listen("tcp", address)
 	if err != nil {
 		log.Fatalf("Failed to listen on %s: %v", address, err)

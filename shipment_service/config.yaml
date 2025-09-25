@@ -4,3 +4,13 @@ database:
   username: "postgres"
   password: "leminhhoang"
   db_name: "shipment_database"
+
+
+grpc_server:
+  host: "127.0.0.1"
+  port: "8083"
+
+billing_connection:
+  address: "127.0.0.1:8082"
+
+  

@@ -30,3 +30,20 @@ func (r *OrderRepositoryImpl) Create(ctx context.Context, order *model.Order) er
 		return nil
 	})
 }
+
+// GetByID retrieves an order by its ID along with related items and payments.
+// Returns the order and nil if found, nil and error otherwise.
+func (r *OrderRepositoryImpl) GetByID(ctx context.Context, id int64) (*model.Order, error) {
+	var order model.Order
+
+	result := r.db.WithContext(ctx).
+		Preload("Items.Item"). // Preload items and their details
+		Preload("Payments").   // Preload payment information
+		First(&order, id)      // Find by primary key
+
+	if result.Error != nil {
+		return nil, result.Error // Return the error (could be gorm.ErrRecordNotFound)
+	}
+
+	return &order, nil
+}

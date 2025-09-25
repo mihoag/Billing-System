@@ -26,8 +26,8 @@ type AdapterConnectionAddress struct {
 var Service Config
 
 func LoadConfig() error {
-	// Read config from file
-	yamlData, err := os.ReadFile("./config.yaml")
+	// Read config from file - using path relative to project root
+	yamlData, err := os.ReadFile("../../config.yaml")
 	if err != nil {
 		return err
 	}

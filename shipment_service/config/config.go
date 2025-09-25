@@ -7,8 +7,9 @@ import (
 )
 
 type Config struct {
-	Database   DatabaseConfig   `yaml:"database"`
-	GRPCServer GRPCServerConfig `yaml:"grpc_server"`
+	Database          DatabaseConfig           `yaml:"database"`
+	GRPCServer        GRPCServerConfig         `yaml:"grpc_server"`
+	BillingConnection AdapterConnectionAddress `yaml:"billing_connection"`
 }
 
 type DatabaseConfig struct {
@@ -24,11 +25,15 @@ type GRPCServerConfig struct {
 	Port string `yaml:"port"`
 }
 
+type AdapterConnectionAddress struct {
+	Address string `yaml:"address"`
+}
+
 var Service Config
 
 func LoadConfig() error {
 	// read config from file
-	yamlData, err := os.ReadFile("./config.yaml")
+	yamlData, err := os.ReadFile("../config.yaml")
 	if err != nil {
 		return err
 	}

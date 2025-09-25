@@ -12,6 +12,7 @@ type ItemRepository interface {
 // OrderRepository defines the interface for order operations
 type OrderRepository interface {
 	Create(ctx context.Context, order *model.Order) error
+	GetByID(ctx context.Context, id int64) (*model.Order, error)
 }
 
 // InvoiceRepository defines the interface for invoice operations

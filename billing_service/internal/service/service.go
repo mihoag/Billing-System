@@ -21,6 +21,7 @@ var (
 // OrderService defines the interface for order-related business logic
 type OrderService interface {
 	CreateOrder(ctx context.Context, customerID string, items []dto.ItemRequest, payments []dto.PaymentRequest) (*model.Order, error)
+	GetOrderByID(ctx context.Context, id int64) (*model.Order, error)
 }
 
 type InvoiceService interface {

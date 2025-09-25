@@ -28,7 +28,7 @@ var Service Config
 
 func LoadConfig() error {
 	// read config from file
-	yamlData, err := os.ReadFile("./config.yaml")
+	yamlData, err := os.ReadFile("../config.yaml")
 	if err != nil {
 		return err
 	}

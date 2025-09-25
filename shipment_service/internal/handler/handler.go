@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"billing-system/shipment_service/internal/dto"
 	"billing-system/shipment_service/internal/model"
 	"billing-system/shipment_service/internal/service"
 	pb "billing-system/shipment_service/proto"
@@ -24,9 +25,9 @@ func NewShipmentHandler(shipmentService service.ShipmentService) *ShipmentHandle
 // CreateShipment handles the gRPC request to create a new shipment
 func (h *ShipmentHandler) CreateShipment(ctx context.Context, req *pb.CreateShipmentRequest) (*pb.CreateShipmentResponse, error) {
 	// Convert proto ShipmentItemRequests to service ShipmentItemRequests
-	items := make([]service.ShipmentItemRequest, len(req.Items))
+	items := make([]dto.ShipmentItemRequest, len(req.Items))
 	for i, item := range req.Items {
-		items[i] = service.ShipmentItemRequest{
+		items[i] = dto.ShipmentItemRequest{
 			Sku:      item.Sku,
 			Quantity: int(item.Quantity),
 		}

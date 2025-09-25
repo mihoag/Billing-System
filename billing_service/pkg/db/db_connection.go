@@ -3,7 +3,7 @@ package db
 import (
 	"fmt"
 
-	"billing-system/billing_service/pkg/config"
+	"billing-system/billing_service/config"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
