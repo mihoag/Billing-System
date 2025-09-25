@@ -2,6 +2,7 @@ package service
 
 import (
 	"billing-system/shipment_service/client/billing"
+	"billing-system/shipment_service/internal/dto"
 	"billing-system/shipment_service/internal/model"
 	"billing-system/shipment_service/internal/repository"
 	"context"
@@ -21,7 +22,7 @@ func NewShipmentService(shipmentRepo repository.ShipmentRepository) ShipmentServ
 	}
 }
 
-func (s *ShipmentServiceImpl) CreateShipment(ctx context.Context, orderID int64, items []ShipmentItemRequest) (*model.Shipment, error) {
+func (s *ShipmentServiceImpl) CreateShipment(ctx context.Context, orderID int64, items []dto.ShipmentItemRequest) (*model.Shipment, error) {
 	if len(items) == 0 {
 		return nil, fmt.Errorf("at least one item is required")
 	}
