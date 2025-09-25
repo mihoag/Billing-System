@@ -1,59 +1,31 @@
 package billing
 
-// CreateOrderRequest represents a request to create a new order
-type CreateOrderRequest struct {
-	CustomerID string           `json:"customer_id" binding:"required"`
-	Items      []ItemRequest    `json:"items" binding:"required,dive"`
-	Payments   []PaymentRequest `json:"payments" binding:"required,dive"`
+// InvoiceItemRequest represents an item for invoice creation
+type InvoiceItemRequest struct {
+	Sku      string `json:"sku"`
+	Quantity int32  `json:"quantity"`
 }
 
-// ItemRequest represents an item in a create order request
-type ItemRequest struct {
-	Sku      string  `json:"sku" binding:"required"`
-	Quantity int     `json:"quantity" binding:"required,min=1"`
-	Price    float64 `json:"price" binding:"omitempty,min=0"`
+// CreateInvoiceRequest represents the request to create an invoice
+type CreateInvoiceRequest struct {
+	ShipmentID int64                `json:"shipment_id"`
+	OrderID    int64                `json:"order_id"`
+	Items      []InvoiceItemRequest `json:"items"`
 }
 
-// PaymentRequest represents a payment in a create order request
-type PaymentRequest struct {
-	Method string  `json:"method" binding:"required"`
-	Amount float64 `json:"amount" binding:"required,min=0"`
+// CreateInvoiceResponse represents the response from creating an invoice
+type CreateInvoiceResponse struct {
+	Code    string      `json:"code"`
+	Message string      `json:"message"`
+	Invoice interface{} `json:"invoice,omitempty"`
 }
 
-// CreateOrderResponse represents a response from creating an order
-type CreateOrderResponse struct {
-	Order OrderResponse `json:"order"`
-}
-
-// OrderResponse represents an order in responses
-type OrderResponse struct {
-	ID          int64               `json:"id"`
-	CustomerID  string              `json:"customer_id"`
-	TotalAmount float64             `json:"total_amount"`
-	Status      string              `json:"status"`
-	Items       []OrderItemResponse `json:"items"`
-	Payments    []PaymentResponse   `json:"payments"`
-	CreatedAt   string              `json:"created_at"`
-	UpdatedAt   string              `json:"updated_at"`
-}
-
-// OrderItemResponse represents an order item in responses
-type OrderItemResponse struct {
-	ID       int64 `json:"id"`
-	OrderID  int64 `json:"order_id"`
-	ItemID   int64 `json:"item_id"`
-	Quantity int   `json:"quantity"`
-}
-
-// PaymentResponse represents a payment in responses
-type PaymentResponse struct {
-	ID      int64   `json:"id"`
-	OrderID int64   `json:"order_id"`
-	Method  string  `json:"method"`
-	Amount  float64 `json:"amount"`
-}
-
-// ErrorResponse represents an error response
-type ErrorResponse struct {
-	Error string `json:"error"`
+// InvoiceData represents invoice data in a response
+type InvoiceData struct {
+	ID          int64   `json:"id"`
+	ShipmentID  int64   `json:"shipment_id"`
+	OrderID     int64   `json:"order_id"`
+	TotalAmount float64 `json:"total_amount"`
+	CreatedAt   string  `json:"created_at"`
+	UpdatedAt   string  `json:"updated_at"`
 }

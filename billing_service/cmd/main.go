@@ -41,7 +41,7 @@ func main() {
 	orderService := service.NewOrderService(orderRepo, itemRepo)
 	invoiceService := service.NewInvoiceService(invoiceRepo)
 
-	// Initialize HTTP handlers
+	// Initialize  handlers
 	orderHandler := billing_handler.NewOrderHandler(orderService, invoiceService)
 
 	// server's address

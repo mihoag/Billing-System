@@ -7,6 +7,7 @@ import (
 	"go.uber.org/zap"
 
 	billing "billing-system/bff/internal/billing"
+	shipment "billing-system/bff/internal/shipment"
 )
 
 func Start() {
@@ -15,12 +16,20 @@ func Start() {
 
 	// Initialize billing handler
 	billingHandler := billing.NewHandler()
+	shipmentHandler := shipment.NewHandler()
 
 	// Set up billing API routes
 	billingRoutes := router.Group("/api/v1/billing")
 	{
 		// Order endpoints
 		billingRoutes.POST("/orders", billingHandler.CreateOrder)
+	}
+
+	// Set up shipment API routes
+	shipmentRoutes := router.Group("/api/v1/shipment")
+	{
+		// Shipment endpoints
+		shipmentRoutes.POST("/shipments", shipmentHandler.CreateShipment)
 	}
 
 	// Start HTTP server
