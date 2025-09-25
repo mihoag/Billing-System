@@ -1,8 +1,8 @@
 package service
 
 import (
+	"billing-system/billing_service/internal/dto"
 	"billing-system/billing_service/internal/model"
-	pb "billing-system/billing_service/proto"
 	"context"
 	"errors"
 )
@@ -20,21 +20,9 @@ var (
 
 // OrderService defines the interface for order-related business logic
 type OrderService interface {
-	CreateOrder(ctx context.Context, customerID string, items []ItemRequest, payments []PaymentRequest) (*model.Order, error)
+	CreateOrder(ctx context.Context, customerID string, items []dto.ItemRequest, payments []dto.PaymentRequest) (*model.Order, error)
 }
 
 type InvoiceService interface {
-	CreateInvoice(ctx context.Context, createInvoiceRequest *pb.CreateInvoiceRequest) (*model.Invoice, error)
-}
-
-// ItemRequest represents a request to include an item in an order or invoice
-type ItemRequest struct {
-	Sku      string `json:"skus"`
-	Quantity int    `json:"quantity"`
-}
-
-// PaymentRequest represents a request to add a payment to an order
-type PaymentRequest struct {
-	Method model.PaymentMethod `json:"method"`
-	Amount float64             `json:"amount"`
+	CreateInvoice(ctx context.Context, shipmentId int64, orderId int64, itemRequest []dto.InvoiceItemRequest) (*model.Invoice, error)
 }

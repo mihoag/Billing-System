@@ -1,6 +1,7 @@
 package service
 
 import (
+	"billing-system/billing_service/internal/dto"
 	"billing-system/billing_service/internal/model"
 	"billing-system/billing_service/internal/repository"
 	"context"
@@ -28,8 +29,8 @@ func NewOrderService(
 func (s *OrderServiceImpl) CreateOrder(
 	ctx context.Context,
 	customerID string,
-	itemRequests []ItemRequest,
-	paymentRequests []PaymentRequest,
+	itemRequests []dto.ItemRequest,
+	paymentRequests []dto.PaymentRequest,
 ) (*model.Order, error) {
 	// Calculate total amount from items
 	var totalAmount float64
@@ -37,16 +38,16 @@ func (s *OrderServiceImpl) CreateOrder(
 
 	// Process items and calculate totals
 	for _, req := range itemRequests {
+		// Fetch item details from repository
 		item, err := s.itemRepo.GetBySku(ctx, req.Sku)
 		if err != nil {
-			return nil, fmt.Errorf("%w: %v", ErrItemNotFound, err)
+			return nil, fmt.Errorf("item with SKU %s not found: %w", req.Sku, err)
 		}
 
-		total := float64(req.Quantity) * item.Price
-		totalAmount += total
+		totalAmount += float64(req.Quantity) * item.Price
 
 		orderItems = append(orderItems, model.OrderItem{
-			ItemId:   item.ID,
+			ItemID:   item.ID,
 			Quantity: req.Quantity,
 		})
 	}
@@ -83,6 +84,6 @@ func (s *OrderServiceImpl) CreateOrder(
 		return nil, fmt.Errorf("failed to create order: %w", err)
 	}
 
-	// If we got this far, the order was created successfully
+	// Return the created order
 	return order, nil
 }

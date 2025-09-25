@@ -3,7 +3,6 @@ package repository
 import (
 	"billing-system/billing_service/internal/model"
 	"context"
-	"fmt"
 
 	"gorm.io/gorm"
 )
@@ -20,11 +19,13 @@ func NewOrderRepository(db *gorm.DB) OrderRepository {
 	}
 }
 
-// Create a new order in the database
+// Create a new order in the database along with its associated items and payments.
+// It uses a transaction to ensure all data is saved atomically.
+// Returns an error if the creation fails.
 func (r *OrderRepositoryImpl) Create(ctx context.Context, order *model.Order) error {
 	return r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		if err := tx.Create(order).Error; err != nil {
-			return fmt.Errorf("failed to create order: %w", err)
+			return err
 		}
 		return nil
 	})

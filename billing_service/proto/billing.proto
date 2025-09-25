@@ -33,7 +33,7 @@ message CreateOrderRequest {
 
 // Response message for creating an order
 message CreateOrderResponse {
-  Order order = 1;
+  Order order = 3;
 }
 
 // Invoice item for invoice creation

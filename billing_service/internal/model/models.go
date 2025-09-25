@@ -49,16 +49,16 @@ type Item struct {
 // OrderItem represents an item in an order
 type OrderItem struct {
 	Base
-	OrderID  int64 `json:"order_id"`
+	OrderID  int64 `json:"order_id" gorm:"index"`
 	Quantity int   `json:"quantity"`
-	ItemId   int64 `json:"item_id" gorm:"foreignKey:ID;references:ID"`
-	Item     Item  `json:"item" gorm:"foreignKey:ItemId"`
+	ItemID   int64 `json:"item_id" gorm:"foreignKey:ID;references:ID"`
+	Item     Item  `json:"item" gorm:"foreignKey:ItemID"`
 }
 
 // Payment represents a payment for an order
 type Payment struct {
 	Base
-	OrderID int64         `json:"order_id"`
+	OrderID int64         `json:"order_id" gorm:"index"`
 	Method  PaymentMethod `json:"method"`
 	Amount  float64       `json:"amount"`
 }
@@ -66,7 +66,7 @@ type Payment struct {
 // Invoice represents an invoice for a shipment
 type Invoice struct {
 	Base
-	OrderID     int64         `json:"order_id"`
+	OrderID     int64         `json:"order_id" gorm:"index"`
 	ShipmentID  int64         `json:"shipment_id" gorm:"uniqueIndex"`
 	TotalAmount float64       `json:"total_amount"`
 	Items       []InvoiceItem `json:"items" gorm:"foreignKey:InvoiceID"`
@@ -77,6 +77,6 @@ type InvoiceItem struct {
 	Base
 	InvoiceID int64 `json:"invoice_id"`
 	Quantity  int   `json:"quantity"`
-	ItemId    int64 `json:"item_id" gorm:"foreignKey:ID;references:ID"`
-	Item      Item  `json:"item" gorm:"foreignKey:ItemId"`
+	ItemID    int64 `json:"item_id" gorm:"foreignKey:ID;references:ID"`
+	Item      Item  `json:"item" gorm:"foreignKey:ItemID"`
 }

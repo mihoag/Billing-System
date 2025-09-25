@@ -19,7 +19,7 @@ func NewItemRepository(db *gorm.DB) ItemRepository {
 	}
 }
 
-// GetByID retrieves an item by its ID
+// GetByID retrieves an item by its sku
 func (r *ItemRepositoryImpl) GetBySku(ctx context.Context, sku string) (*model.Item, error) {
 	var item model.Item
 	err := r.db.WithContext(ctx).Where("sku = ?", sku).First(&item).Error

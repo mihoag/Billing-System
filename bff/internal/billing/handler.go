@@ -6,6 +6,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
+	"billing-system/bff/internal/common"
 	billingPb "billing-system/billing_service/proto"
 )
 
@@ -22,7 +23,7 @@ func NewHandler() *Handler {
 func (h *Handler) CreateOrder(ctx *gin.Context) {
 	var request CreateOrderRequest
 	if err := ctx.ShouldBindJSON(&request); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		ctx.JSON(http.StatusBadRequest, common.ErrorResponse(http.StatusBadRequest, err.Error()))
 		return
 	}
 
@@ -30,7 +31,7 @@ func (h *Handler) CreateOrder(ctx *gin.Context) {
 	client, _, err := h.BillingConnection.NewClient()
 	if err != nil {
 		log.Println("Error connecting to billing service:", err)
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to connect to billing service"})
+		ctx.JSON(http.StatusInternalServerError, common.ErrorResponse(http.StatusInternalServerError, "Failed to connect to billing service"))
 		return
 	}
 	billingClient := client.(billingPb.BillingServiceClient)
@@ -62,13 +63,13 @@ func (h *Handler) CreateOrder(ctx *gin.Context) {
 	// Call billing service
 	pbResponse, err := billingClient.CreateOrder(ctx, pbRequest)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		ctx.JSON(http.StatusInternalServerError, common.ErrorResponse(http.StatusInternalServerError, err.Error()))
 		return
 	}
 
 	// Convert response
 	response := convertPbOrderToResponse(pbResponse.Order)
-	ctx.JSON(http.StatusOK, response)
+	ctx.JSON(http.StatusOK, common.SuccessResponse(response))
 }
 
 // Helper functions for request/response conversion

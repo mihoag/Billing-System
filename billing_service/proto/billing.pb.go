@@ -249,7 +249,7 @@ func (x *CreateOrderRequest) GetPayments() []*PaymentRequest {
 // Response message for creating an order
 type CreateOrderResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Order         *Order                 `protobuf:"bytes,1,opt,name=order,proto3" json:"order,omitempty"`
+	Order         *Order                 `protobuf:"bytes,3,opt,name=order,proto3" json:"order,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -885,7 +885,7 @@ const file_billing_proto_rawDesc = "" +
 	"\x05items\x18\x02 \x03(\v2\x14.billing.ItemRequestR\x05items\x123\n" +
 	"\bpayments\x18\x03 \x03(\v2\x17.billing.PaymentRequestR\bpayments\";\n" +
 	"\x13CreateOrderResponse\x12$\n" +
-	"\x05order\x18\x01 \x01(\v2\x0e.billing.OrderR\x05order\"B\n" +
+	"\x05order\x18\x03 \x01(\v2\x0e.billing.OrderR\x05order\"B\n" +
 	"\x12InvoiceItemRequest\x12\x10\n" +
 	"\x03sku\x18\x01 \x01(\tR\x03sku\x12\x1a\n" +
 	"\bquantity\x18\x02 \x01(\x05R\bquantity\"\x85\x01\n" +

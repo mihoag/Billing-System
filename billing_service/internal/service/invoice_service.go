@@ -1,17 +1,12 @@
 package service
 
 import (
+	"billing-system/billing_service/internal/dto"
 	"billing-system/billing_service/internal/model"
 	"billing-system/billing_service/internal/repository"
-	pb "billing-system/billing_service/proto"
 	"context"
 	"fmt"
 )
-
-type InvoiceItemRequest struct {
-	Sku      string
-	Quantity int
-}
 
 type InvoiceServiceImpl struct {
 	invoiceRepo repository.InvoiceRepository
@@ -23,7 +18,7 @@ func NewInvoiceService(invoiceRepo repository.InvoiceRepository) InvoiceService 
 	}
 }
 
-func (s *InvoiceServiceImpl) CreateInvoice(ctx context.Context, createInvoiceRequest *pb.CreateInvoiceRequest) (*model.Invoice, error) {
+func (s *InvoiceServiceImpl) CreateInvoice(ctx context.Context, shipmentId int64, orderId int64, itemRequest []dto.InvoiceItemRequest) (*model.Invoice, error) {
 	// Validate order exists
 	// order, err := s.orderRepo.GetByID(ctx, orderID)
 	// if err != nil {
@@ -66,8 +61,8 @@ func (s *InvoiceServiceImpl) CreateInvoice(ctx context.Context, createInvoiceReq
 
 	// Create invoice
 	invoice := &model.Invoice{
-		OrderID:     createInvoiceRequest.OrderId,
-		ShipmentID:  createInvoiceRequest.ShipmentId,
+		OrderID:     orderId,
+		ShipmentID:  shipmentId,
 		TotalAmount: 0,
 	}
 

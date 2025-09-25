@@ -1,12 +1,11 @@
 package billing_handler
 
 import (
-	"billing-system/billing_service/internal/model"
 	"billing-system/billing_service/internal/service"
+	"billing-system/billing_service/pkg/utils"
 	pb "billing-system/billing_service/proto"
 	"context"
 	"log"
-	"time"
 
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -29,90 +28,46 @@ func NewOrderHandler(orderService service.OrderService, invoiceService service.I
 
 // CreateOrder handles the gRPC request to create a new order
 func (h *OrderHandler) CreateOrder(ctx context.Context, req *pb.CreateOrderRequest) (*pb.CreateOrderResponse, error) {
-	// Convert proto ItemRequests to service ItemRequests
-	items := make([]service.ItemRequest, len(req.Items))
-	for i, item := range req.Items {
-		items[i] = service.ItemRequest{
-			Sku:      item.Sku,
-			Quantity: int(item.Quantity),
-		}
-	}
+	// Convert proto requests to DTOs
+	items := utils.ProtoItemRequestsToDTO(req.Items)
+	payments := utils.ProtoPaymentRequestsToDTO(req.Payments)
 
-	// Convert proto PaymentRequests to service PaymentRequests
-	payments := make([]service.PaymentRequest, len(req.Payments))
-	for i, payment := range req.Payments {
-		payments[i] = service.PaymentRequest{
-			Method: model.PaymentMethod(payment.Method),
-			Amount: payment.Amount,
-		}
-	}
-
-	// Call the service layer to create the order
+	// Call the service layer
 	order, err := h.orderService.CreateOrder(ctx, req.CustomerId, items, payments)
 	if err != nil {
-		log.Println("Order created with ID:", err)
-
+		log.Println("Failed to create order:", err)
 		return nil, mapErrorToGRPCStatus(err).Err()
 	}
 
-	// Convert the domain order to proto order
-	protoOrder := convertOrderToProto(order)
+	// Convert domain model to proto
+	protoOrder := utils.OrderToProto(order)
 
 	return &pb.CreateOrderResponse{
 		Order: protoOrder,
 	}, nil
 }
 
-// convertOrderToProto converts a domain Order to a proto Order
-func convertOrderToProto(order *model.Order) *pb.Order {
-	protoOrder := &pb.Order{
-		Id:          order.ID,
-		CustomerId:  order.CustomerID,
-		TotalAmount: order.TotalAmount,
-		Status:      mapOrderStatus(order.Status),
-		CreatedAt:   order.CreatedAt.Format(time.RFC3339),
-		UpdatedAt:   order.UpdatedAt.Format(time.RFC3339),
+func (h *OrderHandler) CreateInvoice(ctx context.Context, req *pb.CreateInvoiceRequest) (*pb.CreateInvoiceResponse, error) {
+	// Convert proto items to DTO
+	items := utils.ProtoInvoiceItemRequestsToDTO(req.Items)
+
+	// Call service
+	invoice, err := h.invoiceService.CreateInvoice(ctx, req.ShipmentId, req.OrderId, items)
+	if err != nil {
+		return &pb.CreateInvoiceResponse{
+			Code:    "ERROR",
+			Message: err.Error(),
+		}, nil
 	}
 
-	// Convert order items
-	protoItems := make([]*pb.OrderItem, len(order.Items))
-	for i, item := range order.Items {
-		protoItems[i] = &pb.OrderItem{
-			Id:       item.ID,
-			OrderId:  item.OrderID,
-			ItemId:   item.ItemId,
-			Quantity: int32(item.Quantity),
-		}
-	}
-	protoOrder.Items = protoItems
+	// Convert domain model to proto
+	protoInvoice := utils.InvoiceToProto(invoice)
 
-	// Convert payments
-	protoPayments := make([]*pb.Payment, len(order.Payments))
-	for i, payment := range order.Payments {
-		protoPayments[i] = &pb.Payment{
-			Id:      payment.ID,
-			OrderId: payment.OrderID,
-			Method:  string(payment.Method),
-			Amount:  payment.Amount,
-		}
-	}
-	protoOrder.Payments = protoPayments
-
-	return protoOrder
-}
-
-// mapOrderStatus maps a domain OrderStatus to a proto OrderStatus
-func mapOrderStatus(status model.OrderStatus) pb.OrderStatus {
-	switch status {
-	case model.OrderPending:
-		return pb.OrderStatus_PENDING
-	case model.OrderSuccess:
-		return pb.OrderStatus_SUCCESS
-	case model.OrderFailed:
-		return pb.OrderStatus_FAILED
-	default:
-		return pb.OrderStatus_PENDING
-	}
+	return &pb.CreateInvoiceResponse{
+		Code:    "SUCCESS",
+		Message: "Invoice created successfully",
+		Invoice: protoInvoice,
+	}, nil
 }
 
 // mapErrorToGRPCStatus maps service errors to gRPC status errors
@@ -125,59 +80,4 @@ func mapErrorToGRPCStatus(err error) *status.Status {
 	default:
 		return status.New(codes.Internal, "internal server error")
 	}
-}
-
-func (h *OrderHandler) CreateInvoice(ctx context.Context, req *pb.CreateInvoiceRequest) (*pb.CreateInvoiceResponse, error) {
-	// Convert proto InvoiceItemRequests to service InvoiceItemRequests
-	items := make([]service.InvoiceItemRequest, len(req.Items))
-	for i, item := range req.Items {
-		items[i] = service.InvoiceItemRequest{
-			Sku:      item.Sku,
-			Quantity: int(item.Quantity),
-		}
-	}
-
-	// Call the service layer to create the invoice
-	invoice, err := h.invoiceService.CreateInvoice(ctx, req)
-	if err != nil {
-		return &pb.CreateInvoiceResponse{
-			Code:    "ERROR",
-			Message: err.Error(),
-		}, nil
-	}
-
-	// Convert the domain invoice to proto invoice
-	protoInvoice := convertInvoiceToProto(invoice)
-
-	return &pb.CreateInvoiceResponse{
-		Code:    "SUCCESS",
-		Message: "Invoice created successfully",
-		Invoice: protoInvoice,
-	}, nil
-}
-
-// convertInvoiceToProto converts a domain Invoice to a proto Invoice
-func convertInvoiceToProto(invoice *model.Invoice) *pb.Invoice {
-	protoInvoice := &pb.Invoice{
-		Id:          invoice.ID,
-		ShipmentId:  invoice.ShipmentID,
-		OrderId:     invoice.OrderID,
-		TotalAmount: invoice.TotalAmount,
-		CreatedAt:   invoice.CreatedAt.Format(time.RFC3339),
-		UpdatedAt:   invoice.UpdatedAt.Format(time.RFC3339),
-	}
-
-	// Convert invoice items
-	protoItems := make([]*pb.InvoiceItem, len(invoice.Items))
-	for i, item := range invoice.Items {
-		protoItems[i] = &pb.InvoiceItem{
-			Id:        item.ID,
-			InvoiceId: invoice.ID,
-			ItemId:    item.ItemId,
-			Quantity:  int32(item.Quantity),
-		}
-	}
-	protoInvoice.Items = protoItems
-
-	return protoInvoice
 }
