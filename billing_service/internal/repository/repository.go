@@ -18,4 +18,5 @@ type OrderRepository interface {
 // InvoiceRepository defines the interface for invoice operations
 type InvoiceRepository interface {
 	Create(ctx context.Context, invoice *model.Invoice) error
+	GetByOrderID(ctx context.Context, orderID int64) ([]model.Invoice, error)
 }

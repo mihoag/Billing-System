@@ -28,3 +28,18 @@ func (r *InvoiceRepositoryImpl) Create(ctx context.Context, invoice *model.Invoi
 		return nil
 	})
 }
+
+func (r *InvoiceRepositoryImpl) GetByOrderID(ctx context.Context, orderID int64) ([]model.Invoice, error) {
+	var invoices []model.Invoice
+
+	result := r.db.WithContext(ctx).
+		Where("order_id = ?", orderID).
+		Preload("Items").
+		Find(&invoices)
+
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return invoices, nil
+}
