@@ -8,9 +8,9 @@ import (
 type OrderStatus string
 
 const (
-	Pending OrderStatus = "PENDING"
-	Success OrderStatus = "SUCCESS"
-	Failed  OrderStatus = "FAILED"
+	OrderPending OrderStatus = "PENDING"
+	OrderSuccess OrderStatus = "SUCCESS"
+	OrderFailed  OrderStatus = "FAILED"
 )
 
 // PaymentMethod defines the method of payment
@@ -51,7 +51,8 @@ type OrderItem struct {
 	Base
 	OrderID  int64 `json:"order_id"`
 	Quantity int   `json:"quantity"`
-	ItemId   int64 `json:"item_id"`
+	ItemId   int64 `json:"item_id" gorm:"foreignKey:ID;references:ID"`
+	Item     Item  `json:"item" gorm:"foreignKey:ItemId"`
 }
 
 // Payment represents a payment for an order
@@ -76,5 +77,6 @@ type InvoiceItem struct {
 	Base
 	InvoiceID int64 `json:"invoice_id"`
 	Quantity  int   `json:"quantity"`
-	ItemId    int64 `json:"item_id"`
+	ItemId    int64 `json:"item_id" gorm:"foreignKey:ID;references:ID"`
+	Item      Item  `json:"item" gorm:"foreignKey:ItemId"`
 }

@@ -10,9 +10,9 @@ const StatusSuccess string = "success"
 const StatusFail string = "fail"
 
 type Config struct {
-	Server            ServerConfig             `yaml:"server"`
-	BillingConnection AdapterConnectionAddress `yaml:"billing_connection"`
-	LogLevel          string                   `yaml:"log_level"`
+	Server             ServerConfig             `yaml:"server"`
+	BillingConnection  AdapterConnectionAddress `yaml:"billing_connection"`
+	ShipmentConnection AdapterConnectionAddress `yaml:"shipment_connection"`
 }
 
 type ServerConfig struct {

@@ -73,7 +73,7 @@ func (s *OrderServiceImpl) CreateOrder(
 	order := &model.Order{
 		CustomerID:  customerID,
 		TotalAmount: totalAmount,
-		Status:      model.Pending,
+		Status:      model.OrderPending,
 		Items:       orderItems,
 		Payments:    payments,
 	}

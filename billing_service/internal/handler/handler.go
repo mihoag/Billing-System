@@ -104,11 +104,11 @@ func convertOrderToProto(order *model.Order) *pb.Order {
 // mapOrderStatus maps a domain OrderStatus to a proto OrderStatus
 func mapOrderStatus(status model.OrderStatus) pb.OrderStatus {
 	switch status {
-	case model.Pending:
+	case model.OrderPending:
 		return pb.OrderStatus_PENDING
-	case model.Success:
+	case model.OrderSuccess:
 		return pb.OrderStatus_SUCCESS
-	case model.Failed:
+	case model.OrderFailed:
 		return pb.OrderStatus_FAILED
 	default:
 		return pb.OrderStatus_PENDING

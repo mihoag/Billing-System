@@ -19,17 +19,11 @@ func Start() {
 	shipmentHandler := shipment.NewHandler()
 
 	// Set up billing API routes
-	billingRoutes := router.Group("/api/v1/billing")
+	billingRoutes := router.Group("/api/v1")
 	{
 		// Order endpoints
 		billingRoutes.POST("/orders", billingHandler.CreateOrder)
-	}
-
-	// Set up shipment API routes
-	shipmentRoutes := router.Group("/api/v1/shipment")
-	{
-		// Shipment endpoints
-		shipmentRoutes.POST("/shipments", shipmentHandler.CreateShipment)
+		billingRoutes.POST("/shipments", shipmentHandler.CreateShipment)
 	}
 
 	// Start HTTP server
