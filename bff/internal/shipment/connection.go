@@ -4,6 +4,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
+	"billing-system/bff/config"
 	shipmentPb "billing-system/shipment_service/proto"
 )
 
@@ -13,9 +14,7 @@ type ShipmentConnectionAdapter struct {
 
 func (shipmentConnectionAdapter *ShipmentConnectionAdapter) NewConnection() (*grpc.ClientConn, error) {
 	conn, err := grpc.Dial(
-		// config.Service.BillingConnection.Address,
-		//config.Service.ShipmentConnection.Address, // Shipment service address
-		"127.0.0.1:8083",
+		config.Service.ShipmentConnection.Address, // Shipment service address
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	)
 	if err != nil {

@@ -3,7 +3,7 @@ database:
   port: "5432"
   username: "postgres"
   password: "leminhhoang"
-  db_name: "billing_database"
+  db_name: "billing_db"
 
 grpc_server:
   host: "127.0.0.1"

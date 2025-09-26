@@ -27,7 +27,7 @@ func NewMockDB() (*MockDB, error) {
 
 	// Configure GORM to use the mock database
 	dialector := postgres.New(postgres.Config{
-		DSN:                  "sqlmock_db_0",
+		DSN:                  "sqlmock_db_billing",
 		DriverName:           "postgres",
 		Conn:                 sqlDB,
 		PreferSimpleProtocol: true,

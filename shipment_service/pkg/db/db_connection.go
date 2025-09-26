@@ -11,12 +11,10 @@ import (
 
 // Connect connects to the database and returns a gorm.DB instance
 func NewDatabase(config *config.Config) (*gorm.DB, error) {
-	//dbConfig := config.Database
+	dbConfig := config.Database
 	dsn := fmt.Sprintf(
 		"host=%s port=%s user=%s password=%s dbname=%s ",
-		// dbConfig.Host, dbConfig.Port, dbConfig.Username, dbConfig.Password, dbConfig.Database,
-		"localhost", "5432", "postgres", "leminhhoang", "shipment_db",
-	)
+		dbConfig.Host, dbConfig.Port, dbConfig.Username, dbConfig.Password, dbConfig.Database)
 
 	db, err := gorm.Open(postgres.Open(dsn))
 	if err != nil {

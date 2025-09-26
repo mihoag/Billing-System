@@ -5,6 +5,7 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 
 	billingPb "billing-system/billing_service/proto"
+	"billing-system/shipment_service/config"
 )
 
 // BillingConnectionAdapter manages connections to the billing service
@@ -15,8 +16,7 @@ type BillingConnectionAdapter struct {
 // NewConnection creates a new connection to the billing service
 func (adapter *BillingConnectionAdapter) NewConnection() (*grpc.ClientConn, error) {
 	conn, err := grpc.Dial(
-		//config.Service.BillingConnection.Address, // Billing service address
-		"127.0.0.1:8082",
+		config.Service.BillingConnection.Address, // Billing service address
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	)
 	if err != nil {
