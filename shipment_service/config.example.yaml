@@ -1,0 +1,16 @@
+database:
+  host: "localhost"
+  port: "5432"
+  username: "postgres"
+  password: 
+  db_name: "shipment_db"
+
+
+grpc_server:
+  host: "127.0.0.1"
+  port: "8083"
+
+billing_connection:
+  address: "127.0.0.1:8082"
+
+  
